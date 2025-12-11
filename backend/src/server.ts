@@ -1,5 +1,8 @@
 import express,{Express,Request,Response} from "express";
 import cors from 'cors'
+import dotev from 'dotenv'
+
+dotev.config();
 
 const PORT = process.env.PORT || 5000
 const app:Express = express()
