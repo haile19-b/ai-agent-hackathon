@@ -29,7 +29,7 @@
   "include": [
     "src/**/*",
     "src/prisma.ts",
-    "src/swagger.ts"
+    "src/swagger.ts",
   ],
   "exclude": ["node_modules", "dist"]
 }
