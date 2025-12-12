@@ -1,5 +1,7 @@
 import { Request,Response } from "express"
 import prisma from "../config/prisma";
+import { getDeviceName } from "../tools/ai";
+import { deviceSearchNode, guideDetailsNode, guideListNode } from "../tools/iFixit.tools";
 export const createChatSession = async(req:Request,res:Response):Promise<Response> => {
 
     const userId = req.userId
@@ -99,3 +101,22 @@ try {
     }
 
 };
+
+export const trial = async(req:Request,res:Response):Promise<Response>=>{
+    // const {prompt} = req.body;
+    // const response = await getDeviceName(prompt)
+    
+
+    // return res.status(200).json({
+    //     name:response.device_name
+    // })
+
+    const device_name = "180244"
+
+    const response = await guideDetailsNode(device_name)
+
+    return res.status(200).json({
+        response
+    })
+
+}

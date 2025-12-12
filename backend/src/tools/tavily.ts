@@ -1,4 +1,4 @@
-import searchWeb from "../config/tavity";
+import searchWeb from "../config/tavily";
 
 export const fallbackSearchNode = async(state: { userInput: string; }) => {
   const res = await searchWeb.search(state.userInput);
