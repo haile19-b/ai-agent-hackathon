@@ -2,7 +2,7 @@ import axios from "axios";
 
 // passed
 export const deviceSearchNode = async (state) => {
-    const query = encodeURIComponent(state);
+    const query = encodeURIComponent(state.deviceName);
     const url = `https://www.ifixit.com/api/2.0/search/${query}?filter=device`;
 
     try {
@@ -12,7 +12,7 @@ export const deviceSearchNode = async (state) => {
 
         if (!json?.results?.length) {
             // Log for debugging if you want
-            console.log("No results found for query:", state); 
+            console.log("No results found for query:", state.deviceName); 
             return { deviceFound: false };
         }
 
@@ -43,7 +43,7 @@ export const guideListNode = async(state) => {
     const json = response.data; // The parsed JSON data is in response.data
 
     if (!json?.guides.length) {
-      console.log("No guides found for device:", state);
+      console.log("No guides found for device:", state.deviceTitle);
       return { guidesFound: false };
     }
 
@@ -63,16 +63,14 @@ export const guideListNode = async(state) => {
 }
 
 
+//passed
 export const guideDetailsNode = async(state) => {
 
-  //   if (!state.guides || state.guides.length === 0) {
-  //   console.error("State does not contain guides.");
-  //   return { stepData: [], guideTitle: "N/A" };
-  // }
+  const guideId = state.id
   
-  // const guide = state.guides[0]; 
+  const guide = state.guide.filter(guid => guid.id == guideId)
 
-  const url = `https://www.ifixit.com/api/2.0/guides/${state}`;
+  const url = `https://www.ifixit.com/api/2.0/guides/${state.id}`;
   
   try {
     // Axios handles the request and the JSON parsing automatically.
