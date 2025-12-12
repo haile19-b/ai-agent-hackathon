@@ -5,3 +5,11 @@ export const deviceSchema = z.object({
 }) 
 
 export type device = z.infer<typeof deviceSchema>
+
+
+export const guideSchema = z.object({
+    id:z.number().describe("the unique id for the guide"),
+    relevantGuid:z.string().describe("the most relevant guide to the users input to solve users problem")
+})
+
+export type guide = z.infer<typeof guideSchema>

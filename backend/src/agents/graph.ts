@@ -1,5 +1,7 @@
 import { Graph } from "@langchain/langgraph";
 import { getDeviceName } from "../tools/ai";
+import { deviceSearchNode, guideDetailsNode, guideListNode } from "../tools/iFixit.tools";
+import { fallbackSearchNode } from "../tools/tavily";
 
 const graph = new Graph()
   .addNode("findDeviceName",getDeviceName)
