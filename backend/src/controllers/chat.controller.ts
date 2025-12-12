@@ -1,8 +1,7 @@
-import { Request,response,Response } from "express"
+import { Request,Response } from "express"
 import prisma from "../config/prisma";
-import { getDeviceName, getRelevantGuide } from "../tools/ai";
-import { deviceSearchNode, guideDetailsNode, guideListNode } from "../tools/iFixit.tools";
 import { agent } from "../agents/graph";
+import { fallbackSearchNode } from "../tools/tavily";
 export const createChatSession = async(req:Request,res:Response):Promise<Response> => {
 
     const userId = req.userId
@@ -132,4 +131,14 @@ export const trial = async(req:Request,res:Response):Promise<Response>=>{
     //     response:aiResponse
     // })
 
+}
+
+
+export const google = async(req:Request,res:Response):Promise<Response> => {
+    const {questions} = req.body;
+    const result =  await fallbackSearchNode(questions)
+
+    return res.status(200).json({
+        result
+    })
 }

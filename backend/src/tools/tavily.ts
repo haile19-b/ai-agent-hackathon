@@ -1,6 +1,6 @@
 import searchWeb from "../config/tavily";
 
-export const fallbackSearchNode = async(state: { userInput: string; }) => {
+export const fallbackSearchNode = async(state) => {
   const res = await searchWeb.search(state.userInput);
 
   return {

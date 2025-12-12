@@ -9,7 +9,7 @@ export const deviceSearchNode = async (state) => {
     }
 
     const query = encodeURIComponent(state.deviceName);
-    console.log("here is the device name 2:",state.deviceName)
+    console.log("state2: ",state)
     const url = `https://www.ifixit.com/api/2.0/search/${query}?filter=device`;
 
     try {
@@ -24,6 +24,8 @@ export const deviceSearchNode = async (state) => {
         }
 
         const top = json.results[0];
+
+        console.log("state3: ",state)
 
         return {
             deviceFound: true,
@@ -41,6 +43,8 @@ export const deviceSearchNode = async (state) => {
 //passed
 export const guideListNode = async(state) => {
 
+  console.log("state4: ",state)
+
   const url = `https://www.ifixit.com/api/2.0/wikis/CATEGORY/${state.deviceTitle}`;
   console.log(state)
 
@@ -53,6 +57,8 @@ export const guideListNode = async(state) => {
       console.log("No guides found for device:", state.deviceTitle);
       return { guidesFound: false };
     }
+
+    console.log("state5: ",state)
 
     return {
       guidesFound: true,
@@ -73,11 +79,11 @@ export const guideListNode = async(state) => {
 //passed
 export const guideDetailsNode = async(state) => {
 
-  const guideIdToFind = state.id;
-  
-  const foundGuide = state.guide.find(guid => guid.id == guideIdToFind);
+  console.log("state7: ",state)
 
-  const url = `https://www.ifixit.com/api/2.0/guides/${state.id}`;
+  const guideIdToFind = state.selectedGuideId;
+  
+  const url = `https://www.ifixit.com/api/2.0/guides/${guideIdToFind}`;
   
   try {
     // Axios handles the request and the JSON parsing automatically.
@@ -92,13 +98,13 @@ export const guideDetailsNode = async(state) => {
     }));
 
     return {
-      stepData: cleanedSteps,
-      guideTitle: json.title
+      guideDetails: cleanedSteps,
+      finalResponse: json.title
     };
 
   } catch (error) {
     // Handle potential network errors or API errors
-    console.error(`Error fetching details for guide ID ${guide.id}:`, error.message);
+    console.error(`Error fetching details for guide ID ${guideIdToFind}:`, error.message);
     return { stepData: [], guideTitle: "Error" };
   }
 }

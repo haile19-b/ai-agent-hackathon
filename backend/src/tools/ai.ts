@@ -6,7 +6,7 @@ export const getDeviceName = async(state) => {
 
     console.log(state.userInput)
 
-    const finalPrompt = `from this user explanation , find out the divice name: 
+    const finalPrompt = `from this user explanation , find out the deviceName: 
                        here is the user text: ${state.userInput}`
 
     const response = await genAI.models.generateContent({
@@ -20,13 +20,17 @@ export const getDeviceName = async(state) => {
 
     const  deviceName:device = JSON.parse(response.text!)
 
-    console.log("here is the device name: ",deviceName)
+    const name = deviceName.deviceName
 
-    return deviceName
+    console.log("state1: ",state)
+
+    return {deviceName:name}
 
 }
 
-export const getRelevantGuide = async(state,userInput) => {
+export const getRelevantGuide = async(state) => {
+
+    console.log("state6: ",state)
 
     if (!state.guides || state.guides.length === 0) {
     console.error("State does not contain guides.");
@@ -34,7 +38,7 @@ export const getRelevantGuide = async(state,userInput) => {
   }
 
     const content = `form the given list of guides , identify the most relevant guid from the list for the user input. 
-    here is the user input: ${userInput}. and here is the list of available guids:${JSON.stringify(state.guides,null,2)}`
+    here is the user input: ${state.userInput}. and here is the list of available guids:${JSON.stringify(state.guides,null,2)}`
 
     const response = await genAI.models.generateContent({
         model:"gemini-2.5-flash",
@@ -47,8 +51,10 @@ export const getRelevantGuide = async(state,userInput) => {
 
     const relevantGUide:guide = JSON.parse(response.text!)
 
-    console.log("hello:",relevantGUide,"how are you:",userInput)
+    console.log("hello:",relevantGUide,"how are you:")
 
-    return relevantGUide
+    return {
+        selectedGuideId:relevantGUide.id
+    }
 
 }
