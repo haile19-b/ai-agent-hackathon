@@ -8,12 +8,12 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/User.js'
-export type * from './models/ChatSession.js'
-export type * from './models/Message.js'
-export type * from './models/ToolExecution.js'
-export type * from './models/TokenUsage.js'
-export type * from './models/Analytics.js'
-export type * from './models/Checkpoint.js'
-export type * from './models/DeviceCatalog.js'
-export type * from './commonInputTypes.js'
+export type * from './models/User'
+export type * from './models/ChatSession'
+export type * from './models/Message'
+export type * from './models/ToolExecution'
+export type * from './models/TokenUsage'
+export type * from './models/Analytics'
+export type * from './models/Checkpoint'
+export type * from './models/DeviceCatalog'
+export type * from './commonInputTypes'
