@@ -54,7 +54,8 @@ export const getRelevantGuide = async(state) => {
     console.log("hello:",relevantGUide,"how are you:")
 
     return {
-        selectedGuideId:relevantGUide.id
+        selectedGuideId:relevantGUide.id,
+        webSearch: false,
     }
 
 }

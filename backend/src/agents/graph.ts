@@ -3,6 +3,9 @@ import { StateGraph, functionStateReducer } from "@langchain/langgraph";
 // These tools must be updated to accept `AgentState` as input and return `Partial<AgentState>`
 import { getDeviceName, getRelevantGuide } from "../tools/ai"; 
 import { deviceSearchNode, guideDetailsNode, guideListNode } from "../tools/iFixit.tools";
+import { fallbackSearchNode } from "../tools/tavily";
+import { summarize } from "../tools/summary";
+import { clean_iFixit_Data, clean_tavily_data } from "../tools/cleanData";
 
 // 1. Define full state shape that persists across nodes
 export interface AgentState {
@@ -10,10 +13,16 @@ export interface AgentState {
   deviceName?: string;        // Extracted device name from LLM
   deviceFound?: boolean;      
   deviceTitle?: string;       // iFixit standard device title
+  guidesFound?:boolean;
   guides?: any[];             
   selectedGuideId?: number;   // ID of the guide the AI selected
   guideDetails?: any;         // Full step-by-step guide details
   finalResponse?: string;     // The final response message
+  webSearch?:boolean;
+  webResult?:object;
+  cleaned?:boolean;
+  cleanedWebData?:object;
+  cleanedGuide?:object;
 }
 
 // 2. Create StateGraph with merging reducer
@@ -27,7 +36,12 @@ const workflow = new StateGraph<AgentState>({
     guides: null,
     selectedGuideId: null,
     guideDetails: null,
-    finalResponse: null
+    finalResponse: null,
+    webSearch: null,
+    webResult: null,
+    cleaned: null,
+    cleanedWebData:null,
+    cleanedGuide:null
   },
   reducer: functionStateReducer // Uses the standard reducer
 });
@@ -38,19 +52,44 @@ workflow
   .addNode("deviceSearch", deviceSearchNode)
   .addNode("guideList", guideListNode)
   .addNode("getRelevantGuide", getRelevantGuide)
-  .addNode("fetchGuideDetails", guideDetailsNode);
+  .addNode("fetchGuideDetails", guideDetailsNode)
+  .addNode("fallbackSearch", fallbackSearchNode)
+  .addNode("cleaniFixitData",clean_iFixit_Data)
+  .addNode("cleanWebsiteData",clean_tavily_data)
+  .addNode("summarizesTheData",summarize)
 
 // 4. Define graph order
 workflow
   .setEntryPoint("findDeviceName")
   .addEdge("findDeviceName", "deviceSearch")
-  .addEdge("deviceSearch", "guideList")
-  .addEdge("guideList", "getRelevantGuide")
-  .addEdge("getRelevantGuide", "fetchGuideDetails")
+  .addConditionalEdges("deviceSearch",(state) => {
+      if (state.deviceFound === false){
+         return "fallbackSearch";
+      }
+      return "guideList";
+    }
+  )
+.addConditionalEdges("guideList",(state) => {
+      if (state.guidesFound === false){
+         return "fallbackSearch";
+      }
+      return "getRelevantGuide";
+    }
+  )  
+  .addConditionalEdges("getRelevantGuide",(state)=> {
+    if(state.selectedGuideId == null){
+      return "fallbackSearch"
+    }
+    return "fetchGuideDetails"
+   }
+  )
+  .addEdge("fetchGuideDetails","cleaniFixitData")
+
+  .addEdge("fallbackSearch","cleanWebsiteData")
 
   // --- FIX: Add a finish point ---
   // Assuming 'guideDetails' is the last node that generates the final response
-  .setFinishPoint("fetchGuideDetails"); 
+  .setFinishPoint("summarizesTheData");
 
 
 // 5. Compile graph to agent
