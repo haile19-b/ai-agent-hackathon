@@ -1,6 +1,8 @@
 import { Graph } from "@langchain/langgraph";
+import { getDeviceName } from "../tools/ai";
 
 const graph = new Graph()
+  .addNode("findDeviceName",getDeviceName)
   .addNode("deviceSearch", deviceSearchNode)
   .addNode("guideList", guideListNode)
   .addNode("guideDetails", guideDetailsNode)
