@@ -2,7 +2,14 @@ import axios from "axios";
 
 // passed
 export const deviceSearchNode = async (state) => {
+
+  if (!state.deviceName) {
+        console.error("deviceName is missing from state:", state);
+        return { deviceFound: false, error: "Missing device name input" };
+    }
+
     const query = encodeURIComponent(state.deviceName);
+    console.log("here is the device name 2:",state.deviceName)
     const url = `https://www.ifixit.com/api/2.0/search/${query}?filter=device`;
 
     try {
@@ -34,7 +41,7 @@ export const deviceSearchNode = async (state) => {
 //passed
 export const guideListNode = async(state) => {
 
-  const url = `https://www.ifixit.com/api/2.0/wikis/CATEGORY/${state}`;
+  const url = `https://www.ifixit.com/api/2.0/wikis/CATEGORY/${state.deviceTitle}`;
   console.log(state)
 
   try {
@@ -66,9 +73,9 @@ export const guideListNode = async(state) => {
 //passed
 export const guideDetailsNode = async(state) => {
 
-  const guideId = state.id
+  const guideIdToFind = state.id;
   
-  const guide = state.guide.filter(guid => guid.id == guideId)
+  const foundGuide = state.guide.find(guid => guid.id == guideIdToFind);
 
   const url = `https://www.ifixit.com/api/2.0/guides/${state.id}`;
   

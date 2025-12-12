@@ -4,12 +4,14 @@ import { device, deviceSchema, guide, guideSchema } from "../lib/zod"
 
 export const getDeviceName = async(state) => {
 
-    const finalPromt = `from this user explanation , find out the divice name: 
+    console.log(state.userInput)
+
+    const finalPrompt = `from this user explanation , find out the divice name: 
                        here is the user text: ${state.userInput}`
 
     const response = await genAI.models.generateContent({
         model:"gemini-2.5-flash",
-        contents:finalPromt,
+        contents:finalPrompt,
         config:{
             responseMimeType:"application/json",
             responseJsonSchema:zodToJsonSchema(deviceSchema)
@@ -18,11 +20,13 @@ export const getDeviceName = async(state) => {
 
     const  deviceName:device = JSON.parse(response.text!)
 
+    console.log("here is the device name: ",deviceName)
+
     return deviceName
 
 }
 
-export const getReleventGuide = async(state,userInput) => {
+export const getRelevantGuide = async(state,userInput) => {
 
     if (!state.guides || state.guides.length === 0) {
     console.error("State does not contain guides.");
@@ -42,6 +46,8 @@ export const getReleventGuide = async(state,userInput) => {
     })
 
     const relevantGUide:guide = JSON.parse(response.text!)
+
+    console.log("hello:",relevantGUide,"how are you:",userInput)
 
     return relevantGUide
 

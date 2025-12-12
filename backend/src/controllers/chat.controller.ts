@@ -1,7 +1,8 @@
-import { Request,Response } from "express"
+import { Request,response,Response } from "express"
 import prisma from "../config/prisma";
-import { getDeviceName, getReleventGuide } from "../tools/ai";
+import { getDeviceName, getRelevantGuide } from "../tools/ai";
 import { deviceSearchNode, guideDetailsNode, guideListNode } from "../tools/iFixit.tools";
+import { agent } from "../agents/graph";
 export const createChatSession = async(req:Request,res:Response):Promise<Response> => {
 
     const userId = req.userId
@@ -104,6 +105,14 @@ try {
 
 export const trial = async(req:Request,res:Response):Promise<Response>=>{
     const {prompt} = req.body;
+
+    const result = await agent.invoke({ userInput: prompt });
+
+    return res.status(200).json({
+        success:true,
+        response:result
+    })
+
     // const response = await getDeviceName(prompt)
     
 
@@ -111,16 +120,16 @@ export const trial = async(req:Request,res:Response):Promise<Response>=>{
     //     name:response.device_name
     // })
 
-    const device_name = "HP Pavilion"
+    // const device_name = "HP Pavilion"
 
-    const response = await guideListNode(device_name)
-    console.log(response.guides)
+    // const response = await guideListNode(device_name)
+    // console.log(response.guides)
 
-    const aiResponse = await getReleventGuide(response.guides,prompt)
-    console.log("ai",aiResponse)
+    // const aiResponse = await getRelevantGuide(response.guides,prompt)
+    // console.log("ai",aiResponse)
 
-    return res.status(200).json({
-        response:aiResponse
-    })
+    // return res.status(200).json({
+    //     response:aiResponse
+    // })
 
 }
