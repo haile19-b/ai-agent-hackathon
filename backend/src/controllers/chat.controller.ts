@@ -8,7 +8,7 @@ export const createChatSession = async(req:Request,res:Response):Promise<Respons
 
     if(!userId){
         return res.status(400).json({
-            seccess:false,
+            success:false,
             message:"user in not authenticated!"
         })
     }
