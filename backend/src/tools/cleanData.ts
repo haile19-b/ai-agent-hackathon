@@ -20,7 +20,7 @@ export const clean_iFixit_Data = async (state) => {
 
     // Store it back into state so other nodes can use it
     return {
-        ...state,
+        
         cleanedGuide: cleaned
     };
 };

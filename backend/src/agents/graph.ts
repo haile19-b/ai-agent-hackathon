@@ -23,6 +23,7 @@ export interface AgentState {
   cleaned?:boolean;
   cleanedWebData?:object;
   cleanedGuide?:object;
+  finalData?:object
 }
 
 // 2. Create StateGraph with merging reducer
@@ -41,7 +42,8 @@ const workflow = new StateGraph<AgentState>({
     webResult: null,
     cleaned: null,
     cleanedWebData:null,
-    cleanedGuide:null
+    cleanedGuide:null,
+    finalData:null
   },
   reducer: functionStateReducer // Uses the standard reducer
 });

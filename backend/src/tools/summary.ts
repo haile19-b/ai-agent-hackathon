@@ -1,15 +1,9 @@
 export const summarize = async(state) => {
 
-    console.log("this is final summary ;;;;;",state)
+    const Data = state.cleanedGuide || state.cleanedWebData
 
-    if(state.cleaned){
-        return {
-            webResult:state.webResult,
-            cleanedWebData:state.cleanedWebData
-        }
-    }else{
-        return {
-            state
-        }
-    }
+    console.log("this is final data---> ",Data)
+
+    return {finalData:Data}
+
 }
