@@ -13,3 +13,15 @@ export const guideSchema = z.object({
 })
 
 export type guide = z.infer<typeof guideSchema>
+
+export const stepSchema = z.object({
+    title:z.string().describe("text that can be title for the step"),
+    description:z.string().describe("clear statement that describe the step"),
+    image:z.array(z.string()).describe("array of image urls in correct order")
+})
+
+export const aiFinalResponseSchema = z.object({
+    steps:z.array(stepSchema).describe("this is array of the steps")
+})
+
+export type steps = z.infer<typeof aiFinalResponseSchema>

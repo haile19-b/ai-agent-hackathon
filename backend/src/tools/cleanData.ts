@@ -20,8 +20,8 @@ export const clean_iFixit_Data = async (state) => {
 
     // Store it back into state so other nodes can use it
     return {
-        
-        cleanedGuide: cleaned
+        cleaned:true,
+        cleanedData: cleaned
     };
 };
 
@@ -30,7 +30,7 @@ export const clean_tavily_data = async (state) => {
   try {
     if (!state.webResult || !state.webResult.results) {
       return {
-        cleanedWebData: null,
+        cleanedData: null,
         cleaned: false,
         error: "No webResult available for cleaning"
       };
@@ -54,7 +54,7 @@ export const clean_tavily_data = async (state) => {
 
     return {
       cleaned: true,
-      cleanedWebData: {
+      cleanedData: {
         originalQuery: query,
         topResultsCount: cleaned.length,
         topResults: cleaned
@@ -64,7 +64,7 @@ export const clean_tavily_data = async (state) => {
   } catch (err:any) {
     return {
       cleaned: false,
-      cleanedWebData: null,
+      cleanedData: null,
       error: err.message
     };
   }

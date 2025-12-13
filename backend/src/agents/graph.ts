@@ -21,9 +21,9 @@ export interface AgentState {
   webSearch?:boolean;
   webResult?:object;
   cleaned?:boolean;
-  cleanedWebData?:object;
-  cleanedGuide?:object;
-  finalData?:object
+  cleanedData?:object;
+  finalData?:object;
+  finalSummary?:object;
 }
 
 // 2. Create StateGraph with merging reducer
@@ -41,9 +41,9 @@ const workflow = new StateGraph<AgentState>({
     webSearch: null,
     webResult: null,
     cleaned: null,
-    cleanedWebData:null,
-    cleanedGuide:null,
-    finalData:null
+    cleanedData:null,
+    finalData:null,
+    finalSummary:null
   },
   reducer: functionStateReducer // Uses the standard reducer
 });
@@ -86,8 +86,10 @@ workflow
    }
   )
   .addEdge("fetchGuideDetails","cleaniFixitData")
+  .addEdge("cleaniFixitData","summarizesTheData")
 
   .addEdge("fallbackSearch","cleanWebsiteData")
+  .addEdge("cleanWebsiteData","summarizesTheData")
 
   // --- FIX: Add a finish point ---
   // Assuming 'guideDetails' is the last node that generates the final response

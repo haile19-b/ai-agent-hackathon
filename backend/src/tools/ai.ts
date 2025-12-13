@@ -28,34 +28,47 @@ export const getDeviceName = async(state) => {
 
 }
 
-export const getRelevantGuide = async(state) => {
 
-    console.log("state6: ",state)
+export const getRelevantGuide = async(state) => {
+    console.log("state6: ",state);
 
     if (!state.guides || state.guides.length === 0) {
-    console.error("State does not contain guides.");
-    return { stepData: [], guideTitle: "N/A" };
-  }
-
-    const content = `form the given list of guides , identify the most relevant guid from the list for the user input. 
-    here is the user input: ${state.userInput}. and here is the list of available guids:${JSON.stringify(state.guides,null,2)}`
-
-    const response = await genAI.models.generateContent({
-        model:"gemini-2.5-flash",
-        contents:content,
-        config:{
-            responseMimeType:"application/json",
-            responseJsonSchema:zodToJsonSchema(guideSchema)
-        }
-    })
-
-    const relevantGUide:guide = JSON.parse(response.text!)
-
-    console.log("hello:",relevantGUide,"how are you:")
-
-    return {
-        selectedGuideId:relevantGUide.id,
-        webSearch: false,
+        console.error("State does not contain guides.");
+        return { selectedGuideId: null, webSearch: true };
     }
 
-}
+const promptContent = `
+    FROM the given list of guides, you MUST select the single most relevant guide for the user's input. 
+    Do not add any text outside of the JSON object.
+
+    User Input: ${state.userInput}
+    List of available guides: ${JSON.stringify(state.guides, null, 2)}
+    Don't forget to select once.
+`;
+
+console.log("here is it",JSON.stringify(state.guides,null,2))
+
+    const response = await genAI.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: promptContent,
+        config: {
+            responseMimeType: "application/json",
+            responseJsonSchema: zodToJsonSchema(guideSchema),
+        },
+    });
+
+    const  relevantGUide:guide = JSON.parse(response.text!)
+
+    try {
+        console.log("Selected Guide:", relevantGUide);
+
+        return {
+            selectedGuideId: relevantGUide.id ,
+            webSearch: false,
+        };
+
+    } catch (error) {
+        console.error("Failed to parse the model's JSON response:", error);
+        return { webSearch: true };
+    }
+};
