@@ -1,7 +1,15 @@
 import axios from "axios";
+import { agentEvents } from "../config/event.emmiter";
 
 // passed
 export const deviceSearchNode = async (state) => {
+
+  agentEvents.emit("progress", {
+  node: "deviceSearch",
+  status: "started",
+  message: "Searching iFixit for device",
+  timestamp: Date.now()
+});
 
   if (!state.deviceName) {
         console.error("deviceName is missing from state:", state);
@@ -27,21 +35,43 @@ export const deviceSearchNode = async (state) => {
 
         console.log("state3: ",state)
 
+        agentEvents.emit("progress", {
+        node: "deviceSearch",
+        status: "completed",
+        message: `device Found: ${top.title}`,
+        timestamp: Date.now()
+      });
+
         return {
             deviceFound: true,
             deviceTitle: top.title
         };
 
     } catch (error:any) {
-        // Handle network errors or API failures gracefully
-        console.error("Error fetching device search data:", error.message);
-        return { deviceFound: false, error: "Network error occurred" };
+
+      agentEvents.emit("progress", {
+        node: "deviceSearch",
+        status: "error",
+        message: `cannot get device with Device name: ${state.deviceName} from iFixit!`,
+        timestamp: Date.now()
+      });
+
+      // Handle network errors or API failures gracefully
+      console.error("Error fetching device search data:", error.message);
+      return { deviceFound: false, error: "Network error occurred" };
     }
 }
 
 
 //passed
 export const guideListNode = async(state) => {
+
+  agentEvents.emit("progress", {
+    node: "guideListSearch",
+    status: "started",
+    message: `Searching for List of Guides from iFixit!`,
+    timestamp: Date.now()
+  });
 
   console.log("state4: ",state)
 
@@ -60,6 +90,13 @@ export const guideListNode = async(state) => {
 
     console.log("state5: ",state)
 
+    agentEvents.emit("progress", {
+      node: "guideListSearch",
+      status: "completed",
+      message: `List of Guides are Founded for Your Search form iFixit!`,
+      timestamp: Date.now()
+    });
+
     return {
       guidesFound: true,
       guides: json.guides.map(guide => ({
@@ -69,15 +106,30 @@ export const guideListNode = async(state) => {
     };
     
   } catch (error:any) {
-      // Handle potential network errors or API errors
-      console.error("Error fetching guide list:", error.message);
-      return { guidesFound: false, error: "Network error occurred" };
+    
+    agentEvents.emit("progress", {
+      node: "guideListSearch",
+      status: "error",
+      message: `Finding List of Guides is failed`,
+      timestamp: Date.now()
+    });
+
+    // Handle potential network errors or API errors
+    console.error("Error fetching guide list:", error.message);
+    return { guidesFound: false, error: "Network error occurred" };
   }
 }
 
 
 //passed
 export const guideDetailsNode = async(state) => {
+
+  agentEvents.emit("progress", {
+      node: "Getting steps to solve",
+      status: "started",
+      message: `Finding Steps form iFixit!`,
+      timestamp: Date.now()
+    });
 
   console.log("state7: ",state)
 
@@ -97,12 +149,27 @@ export const guideDetailsNode = async(state) => {
       images: step.media.data.map(img => img.thumbnail)
     }));
 
+    agentEvents.emit("progress", {
+      node: "Getting steps to solve",
+      status: "completed",
+      message: `Steps are Founded with title ${json.title}!`,
+      timestamp: Date.now()
+    });
+
     return {
       guideDetails: cleanedSteps,
       finalResponse: json.title
     };
 
   } catch (error) {
+
+    agentEvents.emit("progress", {
+      node: "Getting steps to solve",
+      status: "error",
+      message: `Failed to get Clear steps from iFixit!`,
+      timestamp: Date.now()
+    });
+
     // Handle potential network errors or API errors
     console.error(`Error fetching details for guide ID ${guideIdToFind}:`, error.message);
     return { stepData: [], guideTitle: "Error" };
