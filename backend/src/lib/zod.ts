@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import * as z from 'zod/v3'
 
 export const deviceSchema = z.object({
     deviceName: z.string().describe('name of the device that the user is wanting to fix in the format we can get it on the iFixit')

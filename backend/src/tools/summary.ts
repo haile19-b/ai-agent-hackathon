@@ -1,8 +1,16 @@
 import zodToJsonSchema from "zod-to-json-schema";
 import { genAI } from "../config/genAI"
 import { aiFinalResponseSchema, steps } from "../lib/zod";
+import { agentEvents } from "../config/event.emmiter";
 
 export const summarize = async(state) => {
+
+    agentEvents.emit("progress", {
+      node: "Summarizing response",
+      status: "started",
+      message: `Summarizing response!`,
+      timestamp: Date.now()
+    });
 
     console.log("here is the final Data -----> ",state.cleanedData)
     
@@ -36,10 +44,20 @@ export const summarize = async(state) => {
     const buffer = await genAI.models.generateContent(config);
 
     let finalSummary: steps;
-    
+
     try {
+
       finalSummary = JSON.parse(buffer.text!);
+
     } catch (err) {
+
+    agentEvents.emit("progress", {
+      node: "Summarizing response",
+      status: "error",
+      message: `Failed to Summarize!`,
+      timestamp: Date.now()
+    });
+
       throw new Error("AI returned invalid JSON:\n" + buffer.text);
     }    
     // Return the complete summary string

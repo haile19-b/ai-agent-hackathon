@@ -3,6 +3,7 @@ import prisma from "../config/prisma";
 import { agent } from "../agents/graph";
 import { fallbackSearchNode } from "../tools/tavily";
 import { agentEvents } from "../config/event.emmiter";
+
 export const createChatSession = async(req:Request,res:Response):Promise<Response> => {
 
     const userId = req.userId
@@ -50,10 +51,17 @@ export const chat = async (req: Request, res: Response) => {
   agentEvents.on("progress", onProgress);
 
   const { message } = req.body; 
-//   const { sessionId } = req.params;
+  const { sessionId } = req.params;
 
   try {
-    const result = await agent.invoke({ userInput: message });
+    const result = await agent.invoke(
+      { userInput: message },
+      {
+        configurable:{
+          thread_id:sessionId
+        }
+      }
+    );
 
     console.log("here is the final summary form the ai ----> ",result)
 
