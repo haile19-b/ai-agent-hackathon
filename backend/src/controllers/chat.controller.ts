@@ -2,6 +2,7 @@ import { Request,Response } from "express"
 import prisma from "../config/prisma";
 import { agent } from "../agents/graph";
 import { fallbackSearchNode } from "../tools/tavily";
+import { agentEvents } from "../config/event.emmiter";
 export const createChatSession = async(req:Request,res:Response):Promise<Response> => {
 
     const userId = req.userId
@@ -35,72 +36,40 @@ export const createChatSession = async(req:Request,res:Response):Promise<Respons
 
 }
 
-export const chat = async (req: Request, res: Response): Promise<Response | void> => {
- 
-//   Send a message every 3 seconds
-//   const interval = setInterval(() => {
-//     res.write(`data: "Hello World!"\n\n`);
-//   }, 3000);
 
-//  Example loop sending 5 messages
-//  for (let i = 0; i < 5; i++) {
-//  res.write(`data: hello ${i}\n\n`);
-//   }
+export const chat = async (req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders?.();
 
-//   Stop the stream after 15 seconds
-//   setTimeout(() => {
-//     clearInterval(interval);
-//     res.end();
-//   }, 15000);
+  const onProgress = (event) => {
+    res.write(`data: ${JSON.stringify(event)}\n\n`);
+  };
 
-res.setHeader("Content-Type", "text/event-stream");
-res.setHeader("Cache-Control", "no-cache");
-res.setHeader("Connection", "keep-alive");
-res.setHeader("Access-Control-Allow-Origin", "*"); // Needed for cross-origin frontend requests
-res.flushHeaders?.();
+  agentEvents.on("progress", onProgress);
 
-res.write(`data: {"status": "connected", "clientId": "Haile"}\n\n`);
+  const { message } = req.body; 
+//   const { sessionId } = req.params;
 
+  try {
+    const result = await agent.invoke({ userInput: message });
 
-const { message } = req.body;
-const { sessionId } = req.params;
+    console.log("here is the final summary form the ai ----> ",result)
 
-if (!message || !sessionId) {
-        // We cannot use res.status(400).json() here because we already sent SSE headers.
-        res.write(`event: error\n`);
-        res.write(`data: {"error": "No message or sessionID provided."}\n\n`);
-        // We end the stream manually in case of input error now.
-        return res.end(); 
-    }
+    res.write(`data: ${JSON.stringify({
+      status: "complete",
+      finalResponse: result.finalSummary
+    })}\n\n`);
 
-try {
-        res.write(`data: {"chatStatus": "Saving the Message on Database..."}\n\n`);
-
-        const savedMassage = await prisma.message.create({
-            data: {
-                sessionId,
-                role: 'USER',
-                content: message,
-                order: 1
-            }
-        });
-
-        res.write(`data: {"chatStatus": "Message saved successfully!", "messageId": "${savedMassage.id}"}\n\n`);
-
-        // --- End of message processing trial ---
-
-        // If you want the trial to automatically end after processing the message, you can call res.end() here:
-         res.write(`data: {"status": "process_complete"}\n\n`);
-         res.end(); 
-
-    } catch (error) {
-        console.error(error);
-        res.write(`event: error\n`);
-        res.write(`data: {"error": "Database operation failed."}\n\n`);
-        res.end();
-    }
-
+  } catch (err:any) {
+    res.write(`event: error\ndata: ${JSON.stringify({ error: err.message })}\n\n`);
+  } finally {
+    agentEvents.off("progress", onProgress);
+    res.end();
+  }
 };
+
 
 export const trial = async(req:Request,res:Response):Promise<Response>=>{
     const {prompt} = req.body;
