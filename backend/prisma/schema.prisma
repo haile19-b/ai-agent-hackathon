@@ -7,125 +7,37 @@ datasource db {
   provider = "postgresql"
 }
 
-
-enum MessageRole {
-  USER
-  ASSISTANT
-  SYSTEM
-  TOOL
-}
-
-enum ToolType {
-  IFIXIT
-  WEBSERACH
-  FORMATTER
-  CLEANUP
-}
-
 model User {
-  id            String     @id @default(uuid())
-  email         String     @unique
-  passwordHash  String
-  displayName   String?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  sessions      ChatSession[]
-  analytics     Analytics?
+  id           String        @id @default(uuid())
+  email        String        @unique
+  passwordHash String
+  displayName  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  sessions     ChatSession[]
 }
 
 model ChatSession {
-  id              String      @id @default(uuid())
-  userId          String?
-  user            User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title           String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  messages        Message[]   @relation("session_messages")
-  toolExecutions  ToolExecution[]
-  tokenUsage      TokenUsage?
-  checkpoints     Checkpoint[]
-  isActive        Boolean     @default(true)
-  metadata        Json?       // freeform metadata (device detected, search heuristics, etc.)
+  id        String     @id @default(uuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  messages  Message[]  @relation("session_messages")
+  metadata  Json?      // optional extra info
   @@index([userId])
   @@index([createdAt])
 }
 
 model Message {
-  id            String       @id @default(uuid())
-  sessionId     String
-  session       ChatSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade, name: "session_messages")
-  role          MessageRole
-  content       String       // text content (could be markdown for assistant)
-  contentRaw    Json?        // raw structured content if needed (e.g., cleaned guide JSON)
-  createdAt     DateTime     @default(now())
-  tokenCount    Int?         // tokens consumed to generate/store this message (estimate from LLM)
-  isFinal       Boolean      @default(false) // message complete
-  source        String?      // e.g., "ifixit", "web:duckduckgo", null
-  confidence    Float?       // optional confidence metric (0-1) for fallback results
-  order         Int          // message order in session, useful for quick queries
+  id          String       @id @default(uuid())
+  sessionId   String
+  session     ChatSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade, name: "session_messages")
+  userContent String
+  response    Json
+  createdAt   DateTime     @default(now())
+  order       Int
   @@index([sessionId, order])
   @@index([createdAt])
-}
-
-model ToolExecution {
-  id            String      @id @default(uuid())
-  sessionId     String
-  session       ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  tool          ToolType
-  request       Json        // what we asked the tool (query, params)
-  rawResponse   Json        // full raw JSON returned by tool (store but can be large)
-  cleanedResult Json?       // result after cleanup (steps/images) — what we pass to LLM
-  status        String      // "started","success","not_found","error","rate_limited"
-  errorMessage  String?
-  startedAt     DateTime    @default(now())
-  finishedAt    DateTime?
-  durationMs    Int?
-  @@index([sessionId])
-  @@index([tool])
-}
-
-model TokenUsage {
-  id            String      @id @default(uuid())
-  sessionId     String      @unique
-  session       ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  userId        String?     // optional denormalization for quick lookups
-  totalPromptTokens Int     @default(0)
-  totalCompletionTokens Int @default(0)
-  totalTokens    Int       @default(0)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-}
-
-model Analytics {
-  id            String     @id @default(uuid())
-  userId        String     @unique
-  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  totalRequests Int        @default(0)
-  totalFallbacks Int       @default(0) // how many times web fallback used
-  totalIFixitHits Int      @default(0)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-}
-
-model Checkpoint {
-  id            String      @id @default(uuid())
-  sessionId     String
-  session       ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  // raw LangGraph checkpoint blob (serialized graph state / embeddings etc.)
-  checkpointBlob Bytes
-  createdAt     DateTime    @default(now())
-  summary       String?     // optional human-readable summary used for trimming
-  tokenEstimate Int?        // estimated tokens represented by this checkpoint
-  @@index([sessionId, createdAt])
-}
-
-model DeviceCatalog {
-  // optional helper table to cache iFixit device mappings
-  id            String    @id @default(uuid())
-  query         String    @unique // normalized user query -> device key
-  deviceTitle   String
-  sourceMeta    Json?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  @@index([deviceTitle])
 }

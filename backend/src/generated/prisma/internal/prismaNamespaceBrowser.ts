@@ -53,12 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   ChatSession: 'ChatSession',
-  Message: 'Message',
-  ToolExecution: 'ToolExecution',
-  TokenUsage: 'TokenUsage',
-  Analytics: 'Analytics',
-  Checkpoint: 'Checkpoint',
-  DeviceCatalog: 'DeviceCatalog'
+  Message: 'Message'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -95,7 +90,6 @@ export const ChatSessionScalarFieldEnum = {
   title: 'title',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  isActive: 'isActive',
   metadata: 'metadata'
 } as const
 
@@ -105,86 +99,13 @@ export type ChatSessionScalarFieldEnum = (typeof ChatSessionScalarFieldEnum)[key
 export const MessageScalarFieldEnum = {
   id: 'id',
   sessionId: 'sessionId',
-  role: 'role',
-  content: 'content',
-  contentRaw: 'contentRaw',
+  userContent: 'userContent',
+  response: 'response',
   createdAt: 'createdAt',
-  tokenCount: 'tokenCount',
-  isFinal: 'isFinal',
-  source: 'source',
-  confidence: 'confidence',
   order: 'order'
 } as const
 
 export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum]
-
-
-export const ToolExecutionScalarFieldEnum = {
-  id: 'id',
-  sessionId: 'sessionId',
-  tool: 'tool',
-  request: 'request',
-  rawResponse: 'rawResponse',
-  cleanedResult: 'cleanedResult',
-  status: 'status',
-  errorMessage: 'errorMessage',
-  startedAt: 'startedAt',
-  finishedAt: 'finishedAt',
-  durationMs: 'durationMs'
-} as const
-
-export type ToolExecutionScalarFieldEnum = (typeof ToolExecutionScalarFieldEnum)[keyof typeof ToolExecutionScalarFieldEnum]
-
-
-export const TokenUsageScalarFieldEnum = {
-  id: 'id',
-  sessionId: 'sessionId',
-  userId: 'userId',
-  totalPromptTokens: 'totalPromptTokens',
-  totalCompletionTokens: 'totalCompletionTokens',
-  totalTokens: 'totalTokens',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type TokenUsageScalarFieldEnum = (typeof TokenUsageScalarFieldEnum)[keyof typeof TokenUsageScalarFieldEnum]
-
-
-export const AnalyticsScalarFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  totalRequests: 'totalRequests',
-  totalFallbacks: 'totalFallbacks',
-  totalIFixitHits: 'totalIFixitHits',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type AnalyticsScalarFieldEnum = (typeof AnalyticsScalarFieldEnum)[keyof typeof AnalyticsScalarFieldEnum]
-
-
-export const CheckpointScalarFieldEnum = {
-  id: 'id',
-  sessionId: 'sessionId',
-  checkpointBlob: 'checkpointBlob',
-  createdAt: 'createdAt',
-  summary: 'summary',
-  tokenEstimate: 'tokenEstimate'
-} as const
-
-export type CheckpointScalarFieldEnum = (typeof CheckpointScalarFieldEnum)[keyof typeof CheckpointScalarFieldEnum]
-
-
-export const DeviceCatalogScalarFieldEnum = {
-  id: 'id',
-  query: 'query',
-  deviceTitle: 'deviceTitle',
-  sourceMeta: 'sourceMeta',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type DeviceCatalogScalarFieldEnum = (typeof DeviceCatalogScalarFieldEnum)[keyof typeof DeviceCatalogScalarFieldEnum]
 
 
 export const SortOrder = {

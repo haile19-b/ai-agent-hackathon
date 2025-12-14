@@ -3,7 +3,7 @@ import { genAI } from "../config/genAI"
 import { deviceSchema, guide, guideSchema } from "../lib/zod"
 import { agentEvents } from "../config/event.emmiter";
 
-export const getDeviceName = async (state) => {
+export const getDeviceName = async (state:any) => {
   agentEvents.emit("progress", {
     node: "getDeviceName",
     status: "started",
@@ -52,7 +52,6 @@ ${state.userInput}
     timestamp: Date.now()
   });
 
-  // ✅ Context shift detected → reset downstream state
   if (state.deviceName && name !== state.deviceName) {
     return {
       deviceName: name,

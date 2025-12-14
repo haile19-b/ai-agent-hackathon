@@ -52,28 +52,3 @@ export type ChatSession = Prisma.ChatSessionModel
  * 
  */
 export type Message = Prisma.MessageModel
-/**
- * Model ToolExecution
- * 
- */
-export type ToolExecution = Prisma.ToolExecutionModel
-/**
- * Model TokenUsage
- * 
- */
-export type TokenUsage = Prisma.TokenUsageModel
-/**
- * Model Analytics
- * 
- */
-export type Analytics = Prisma.AnalyticsModel
-/**
- * Model Checkpoint
- * 
- */
-export type Checkpoint = Prisma.CheckpointModel
-/**
- * Model DeviceCatalog
- * 
- */
-export type DeviceCatalog = Prisma.DeviceCatalogModel

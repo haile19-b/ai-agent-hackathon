@@ -9,21 +9,7 @@
 * 🟢 You can import this file directly.
 */
 
-export const MessageRole = {
-  USER: 'USER',
-  ASSISTANT: 'ASSISTANT',
-  SYSTEM: 'SYSTEM',
-  TOOL: 'TOOL'
-} as const
-
-export type MessageRole = (typeof MessageRole)[keyof typeof MessageRole]
 
 
-export const ToolType = {
-  IFIXIT: 'IFIXIT',
-  WEBSERACH: 'WEBSERACH',
-  FORMATTER: 'FORMATTER',
-  CLEANUP: 'CLEANUP'
-} as const
-
-export type ToolType = (typeof ToolType)[keyof typeof ToolType]
+// This file is empty because there are no enums in the schema.
+export {}

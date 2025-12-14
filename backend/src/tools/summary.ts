@@ -3,7 +3,7 @@ import { genAI } from "../config/genAI"
 import { aiFinalResponseSchema, steps } from "../lib/zod";
 import { agentEvents } from "../config/event.emmiter";
 
-export const summarize = async(state) => {
+export const summarize = async(state:any) => {
 
     agentEvents.emit("progress", {
       node: "Summarizing response",

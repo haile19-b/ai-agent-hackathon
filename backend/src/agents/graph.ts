@@ -6,7 +6,7 @@ import { deviceSearchNode, guideDetailsNode, guideListNode } from "../tools/iFix
 import { fallbackSearchNode } from "../tools/tavily";
 import { summarize } from "../tools/summary";
 import { clean_iFixit_Data, clean_tavily_data } from "../tools/cleanData";
-import { checkPointer, getCheckPointer } from "../config/stateCheckPointer";
+import { checkPointer } from "../config/stateCheckPointer";
 
 // 1. Define full state shape that persists across nodes
 export interface AgentState {
@@ -98,8 +98,6 @@ workflow
 
 
 // 5. Compile graph to agent
-const checkPointer = getCheckPointer();
-
 export const agent = workflow.compile({
   checkpointer: checkPointer,
 });
