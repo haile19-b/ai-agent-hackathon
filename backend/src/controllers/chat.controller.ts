@@ -100,6 +100,8 @@ export const chat = async (req: Request, res: Response): Promise<void> => {
       orderBy: { order: "desc" }
     });
 
+    console.log("here is the final result----===--->: ",result)
+
     const nextOrder = lastMessage ? lastMessage.order + 1 : 1;
 
     // Persist message
@@ -116,7 +118,8 @@ export const chat = async (req: Request, res: Response): Promise<void> => {
     res.write(
       `data: ${JSON.stringify({
         status: "complete",
-        finalResponse: result.finalSummary?.steps,
+        websearch:result.webSearch,
+        finalResponse: result.finalSummary,
         messageId: saved.id
       })}\n\n`
     );
@@ -165,6 +168,46 @@ export const getMessages = async(req:Request,res:Response):Promise<Response> => 
     return res.status(500).json({
       success:false,
       message:"Error occured Finding the Messages!",
+      error:error
+    })
+  }
+
+}
+
+export const getChats = async(req:Request,res:Response):Promise<Response> => {
+  const userId = req.userId
+
+  if(!userId){
+    return res.status(400).json({
+      success:false,
+      message:"NO userId"
+    })
+  }
+
+  try {
+    
+    const findChats = await prisma.chatSession.findMany({
+      where:{userId}
+    })
+
+    if(!findChats){
+    return res.status(400).json({
+      success:false,
+      chats:[]
+    })
+  }
+
+  console.log("findchat",findChats)
+
+  return res.status(200).json({
+    success:true,
+    chats:findChats
+  })
+
+  } catch (error) {
+    return res.status(500).json({
+      success:false,
+      message:"Error occured Finding the chats!",
       error:error
     })
   }

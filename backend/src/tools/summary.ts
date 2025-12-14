@@ -1,6 +1,6 @@
 import zodToJsonSchema from "zod-to-json-schema";
 import { genAI } from "../config/genAI"
-import { aiFinalResponseSchema, steps } from "../lib/zod";
+import { aiFinalResponseSchema, steps, webDataSummarySchema } from "../lib/zod";
 import { agentEvents } from "../config/event.emmiter";
 
 export const summarize = async(state:any) => {
@@ -12,7 +12,7 @@ export const summarize = async(state:any) => {
       timestamp: Date.now()
     });
 
-    console.log("here is the final Data -----> ",state.cleanedData)
+    console.log("here is the final Data -----> ",state)
     
     // The content structure should only contain user/model turns
     const content = [
@@ -60,6 +60,55 @@ export const summarize = async(state:any) => {
 
       throw new Error("AI returned invalid JSON:\n" + buffer.text);
     }    
+    // Return the complete summary string
+    return {finalSummary:finalSummary};
+}
+
+export const summarizeWebsearchData = async(state:any) => {
+  const content = [
+    {
+        role: "user",
+        parts: [{ text: `
+            Here is the relevant data about the item:
+            ${JSON.stringify(state,null,2)}
+            
+            Based on the data above, please address the following user request:
+            ${state.originalQuery}
+        `}],
+    }
+  ]
+
+  const config = {
+        model: "gemini-2.5-flash",
+        contents: content,
+        config: {
+            responseMimeType: "application/json",
+            responseJsonSchema: zodToJsonSchema(webDataSummarySchema),
+            // Use the dedicated parameter for system instructions
+            systemInstruction: "You are responsible for returning correct and structured information on how to fix the item based solely on the given content. Do not add conversational filler."
+        }
+    };
+
+    const buffer = await genAI.models.generateContent(config);
+
+    let finalSummary: steps;
+
+    try {
+
+      finalSummary = JSON.parse(buffer.text!);
+
+    } catch (err) {
+
+    agentEvents.emit("progress", {
+      node: "Summarizing response",
+      status: "error",
+      message: `Failed to Summarize!`,
+      timestamp: Date.now()
+    });
+
+      throw new Error("AI returned invalid JSON:\n" + buffer.text);
+    }    
+    console.log("this is finalform web:---->: ",finalSummary)
     // Return the complete summary string
     return {finalSummary:finalSummary};
 }

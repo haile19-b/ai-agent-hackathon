@@ -25,3 +25,11 @@ export const aiFinalResponseSchema = z.object({
 })
 
 export type steps = z.infer<typeof aiFinalResponseSchema>
+
+export const webDataSummarySchema = z.object({
+    title:z.string().describe("thi is the over title for the response"),
+    shortSummary:z.string().describe("this is the summary of the result"),
+    url:z.array(z.string()).describe("this is the collection of url optained from the web-search!")
+})
+
+export type webData = z.infer<typeof webDataSummarySchema>

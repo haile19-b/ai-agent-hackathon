@@ -1,9 +1,9 @@
-export const clean_iFixit_Data = async (state) => {
+export const clean_iFixit_Data = async (state:any) => {
     const data = state;        // your full JSON payload
     const steps = data.guideDetails;    // array of step objects
 
     // Clean each guide step
-    const cleanedSteps = steps.map((step, index) => ({
+    const cleanedSteps = steps.map((step:any, index:any) => ({
         stepNumber: index + 1,
         text: step.text?.trim() || "",
         images: step.images || []
@@ -26,7 +26,7 @@ export const clean_iFixit_Data = async (state) => {
 };
 
 
-export const clean_tavily_data = async (state) => {
+export const clean_tavily_data = async (state:any) => {
   try {
     if (!state.webResult || !state.webResult.results) {
       return {
@@ -39,7 +39,7 @@ export const clean_tavily_data = async (state) => {
     const { query, results } = state.webResult;
 
     // Clean, normalize, structure data
-    const cleaned = results.map((item, index) => ({
+    const cleaned = results.map((item:any, index:any) => ({
       id: index + 1,
       title: item.title?.trim() || "Untitled result",
       url: item.url,

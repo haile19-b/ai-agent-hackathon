@@ -4,9 +4,10 @@ import { StateGraph, functionStateReducer } from "@langchain/langgraph";
 import { getDeviceName, getRelevantGuide } from "../tools/ai"; 
 import { deviceSearchNode, guideDetailsNode, guideListNode } from "../tools/iFixit.tools";
 import { fallbackSearchNode } from "../tools/tavily";
-import { summarize } from "../tools/summary";
+import { summarize, summarizeWebsearchData } from "../tools/summary";
 import { clean_iFixit_Data, clean_tavily_data } from "../tools/cleanData";
 import { checkPointer } from "../config/stateCheckPointer";
+import { Final } from "../tools/finish";
 
 // 1. Define full state shape that persists across nodes
 export interface AgentState {
@@ -59,7 +60,9 @@ workflow
   .addNode("fallbackSearch", fallbackSearchNode)
   .addNode("cleaniFixitData",clean_iFixit_Data)
   .addNode("cleanWebsiteData",clean_tavily_data)
-  .addNode("summarizesTheData",summarize)
+  .addNode("summarizesIFixitTheData",summarize)
+  .addNode("summarizeWebsearchData",summarizeWebsearchData)
+  .addNode("FinalNode",Final)
 
 // 4. Define graph order
 workflow
@@ -87,14 +90,16 @@ workflow
    }
   )
   .addEdge("fetchGuideDetails","cleaniFixitData")
-  .addEdge("cleaniFixitData","summarizesTheData")
+  .addEdge("cleaniFixitData","summarizesIFixitTheData")
 
   .addEdge("fallbackSearch","cleanWebsiteData")
-  .addEdge("cleanWebsiteData","summarizesTheData")
+  .addEdge("cleanWebsiteData","summarizeWebsearchData")
+  .addEdge("summarizeWebsearchData","FinalNode")
+  .addEdge("summarizesIFixitTheData","FinalNode")
 
   // --- FIX: Add a finish point ---
   // Assuming 'guideDetails' is the last node that generates the final response
-  .setFinishPoint("summarizesTheData");
+  .setFinishPoint("FinalNode");
 
 
 // 5. Compile graph to agent
