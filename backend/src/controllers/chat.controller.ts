@@ -4,41 +4,42 @@ import { agent } from "../agents/graph";
 import { fallbackSearchNode } from "../tools/tavily";
 import { agentEvents } from "../config/event.emmiter";
 
-export const createChatSession = async(req:Request,res:Response):Promise<Response> => {
+export const createChatSession = async (req: Request & { userId?: string },res: Response): Promise<Response> => {
 
-    const userId = req.userId
+  const userId = req.userId;
 
-    if(!userId){
-        return res.status(400).json({
-            success:false,
-            message:"user in not authenticated!"
-        })
-    }
+  if (!userId) {
+    return res.status(401).json({
+      success: false,
+      message: "User is not authenticated"
+    });
+  }
 
-    try {
-        
-        const session = await prisma.chatSession.create({
-            data:{
-                userId:userId
-            }
-        })
+  const title = `Chat ${new Date().toLocaleString()}`;
 
-        return res.status(200).json({
-            success:true,
-            sessionId:session.id
-        })
+  try {
+    const session = await prisma.chatSession.create({
+      data: {
+        userId,
+        title
+      }
+    });
 
-    } catch (error:any) {
-        return res.status(500).json({
-            success:false,
-            error:error.message
-        })
-    }
+    return res.status(201).json({
+      success: true,
+      sessionId: session.id
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
 
-}
 
 
-export const chat = async (req: Request, res: Response): Promise<void> => {
+export const chat = async (req: Request, res: Response): Promise<void | Response> => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
@@ -61,13 +62,11 @@ export const chat = async (req: Request, res: Response): Promise<void> => {
       })}\n\n`
     );
     agentEvents.off("progress", onProgress);
-    res.end();
+    return res.end();
   }
 
   try {
-    // Ensure session exists
-
-    const safeSessionId: string = sessionId!;
+    const safeSessionId = sessionId;
 
     const session = await prisma.chatSession.findUnique({
       where: { id: safeSessionId }
@@ -80,45 +79,46 @@ export const chat = async (req: Request, res: Response): Promise<void> => {
           message: "Chat session not found"
         })}\n\n`
       );
-      return;
+      agentEvents.off("progress", onProgress);
+      return res.end();
     }
 
-    // Invoke LangGraph with checkpointing
     const result = await agent.invoke(
       { userInput: message },
       {
-        configurable: {
-          thread_id: sessionId
-        }
+        configurable: { thread_id: safeSessionId }
       }
     );
 
-    // Determine next message order
+    if (!result?.finalSummary) {
+      throw new Error("Agent did not return a final summary");
+    }
 
     const lastMessage = await prisma.message.findFirst({
-      where: { sessionId:safeSessionId },
+      where: { sessionId: safeSessionId },
       orderBy: { order: "desc" }
     });
 
-    console.log("here is the final result----===--->: ",result)
-
     const nextOrder = lastMessage ? lastMessage.order + 1 : 1;
 
-    // Persist message
     const saved = await prisma.message.create({
       data: {
-        sessionId:safeSessionId,
+        sessionId: safeSessionId,
         userContent: message,
         response: result.finalSummary as any,
         order: nextOrder
       }
     });
 
-    // Send final SSE payload
+    await prisma.chatSession.update({
+      where: { id: safeSessionId },
+      data: { updatedAt: new Date() }
+    });
+
     res.write(
       `data: ${JSON.stringify({
         status: "complete",
-        websearch:result.webSearch,
+        webSearch: result.webSearch ?? false,
         finalResponse: result.finalSummary,
         messageId: saved.id
       })}\n\n`
@@ -136,66 +136,55 @@ export const chat = async (req: Request, res: Response): Promise<void> => {
 };
 
 
-export const getMessages = async(req:Request,res:Response):Promise<Response> => {
+
+export const getMessages = async (req: Request, res: Response): Promise<Response> => {
   const { sessionId } = req.params;
 
-  if(!sessionId){
+  if (!sessionId) {
     return res.status(400).json({
-      success:false,
-      message:"No sessionId Provided!"
-    })
+      success: false,
+      message: "No sessionId provided"
+    });
   }
 
   try {
-    
-    const Messages = await prisma.message.findMany({
-    where:{sessionId:sessionId}
-  })
+    const messages = await prisma.message.findMany({
+      where: { sessionId },
+      orderBy: { order: "asc" }
+    });
 
-  if(!Messages){
-    return res.status(400).json({
-      success:false,
-      message:"NO message for thi sessionId"
-    })
-  }
-
-  return res.status(200).json({
-    success:true,
-    messages:Messages
-  })
-
-  } catch (error) {
+    return res.status(200).json({
+      success: true,
+      messages
+    });
+  } catch (error: any) {
     return res.status(500).json({
-      success:false,
-      message:"Error occured Finding the Messages!",
-      error:error
-    })
+      success: false,
+      message: "Error occurred fetching messages",
+      error: error.message
+    });
   }
+};
 
-}
 
 export const getChats = async(req:Request,res:Response):Promise<Response> => {
   const userId = req.userId
 
   if(!userId){
-    return res.status(400).json({
+    return res.status(401).json({
       success:false,
       message:"NO userId"
     })
   }
 
   try {
+
+    console.log("Querying chats for userId:", userId); 
     
     const findChats = await prisma.chatSession.findMany({
-      where:{userId}
+      where:{userId},
+      orderBy: { updatedAt: "desc" }
     })
-
-    if(!findChats){
-    return res.status(400).json({
-      success:false,
-      chats:[]
-    })
-  }
 
   console.log("findchat",findChats)
 
