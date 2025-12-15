@@ -1,7 +1,15 @@
+import { agentEvents } from "../config/event.emmiter";
 import searchWeb from "../config/tavily";
 
-export const fallbackSearchNode = async(state) => {
-  console.log("////this is current state: ",state)
+export const fallbackSearchNode = async(state:any) => {
+
+  agentEvents.emit("progress", {
+      node: "Searching Web...",
+      status: "started",
+      message: "searching for web",
+      timestamp: Date.now()
+    });
+
   const res = await searchWeb.search(state.userInput);
   
  try {
@@ -18,6 +26,14 @@ export const fallbackSearchNode = async(state) => {
     webResult:content
   };
  } catch (error) {
+
+  agentEvents.emit("progress", {
+    node: "getDeviceName",
+    status: "error",
+    message: "Error occurred searching web!",
+    timestamp: Date.now()
+  });
+
   return { webSearch: false, error: error.message };
 }
 }

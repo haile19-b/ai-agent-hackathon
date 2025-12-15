@@ -1,32 +1,50 @@
-export const clean_iFixit_Data = async (state:any) => {
-    const data = state;        // your full JSON payload
-    const steps = data.guideDetails;    // array of step objects
+import { agentEvents } from "../config/event.emmiter";
 
-    // Clean each guide step
-    const cleanedSteps = steps.map((step:any, index:any) => ({
-        stepNumber: index + 1,
-        text: step.text?.trim() || "",
-        images: step.images || []
-    }));
+export const clean_iFixit_Data = async (state: any) => {
 
-    // Final clean structured object
-    const cleaned = {
-        device: data.deviceTitle || data.deviceName,
-        userInput: data.userInput,
-        guideId: data.selectedGuideId,
-        guideTitle: data.finalResponse,
-        steps: cleanedSteps
-    };
+  agentEvents.emit("progress", {
+    node: "collecting Data",
+    status: "started",
+    message: "waite a moment!",
+    timestamp: Date.now()
+  });
 
-    // Store it back into state so other nodes can use it
-    return {
-        cleaned:true,
-        cleanedData: cleaned
-    };
+  const data = state;        // your full JSON payload
+  const steps = data.guideDetails;    // array of step objects
+
+  // Clean each guide step
+  const cleanedSteps = steps.map((step: any, index: any) => ({
+    stepNumber: index + 1,
+    text: step.text?.trim() || "",
+    images: step.images || []
+  }));
+
+  // Final clean structured object
+  const cleaned = {
+    device: data.deviceTitle || data.deviceName,
+    userInput: data.userInput,
+    guideId: data.selectedGuideId,
+    guideTitle: data.finalResponse,
+    steps: cleanedSteps
+  };
+
+  // Store it back into state so other nodes can use it
+  return {
+    cleaned: true,
+    cleanedData: cleaned
+  };
 };
 
 
-export const clean_tavily_data = async (state:any) => {
+export const clean_tavily_data = async (state: any) => {
+
+   agentEvents.emit("progress", {
+    node: "collecting Data",
+    status: "started",
+    message: "waite a moment!",
+    timestamp: Date.now()
+  });
+
   try {
     if (!state.webResult || !state.webResult.results) {
       return {
@@ -39,7 +57,7 @@ export const clean_tavily_data = async (state:any) => {
     const { query, results } = state.webResult;
 
     // Clean, normalize, structure data
-    const cleaned = results.map((item:any, index:any) => ({
+    const cleaned = results.map((item: any, index: any) => ({
       id: index + 1,
       title: item.title?.trim() || "Untitled result",
       url: item.url,
@@ -48,8 +66,8 @@ export const clean_tavily_data = async (state:any) => {
       sourceType: item.url.includes("youtube.com") || item.url.includes("youtu")
         ? "video"
         : item.url.includes("tiktok.com")
-        ? "short-video"
-        : "article"
+          ? "short-video"
+          : "article"
     }));
 
     return {
@@ -61,7 +79,7 @@ export const clean_tavily_data = async (state:any) => {
       }
     };
 
-  } catch (err:any) {
+  } catch (err: any) {
     return {
       cleaned: false,
       cleanedData: null,
