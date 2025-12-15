@@ -24,7 +24,7 @@ export const fallbackSearchNode = async(state:any) => {
     webSearch:true,
     webResult:content
   };
- } catch (error) {
+ } catch (error:any) {
 
   agentEvents.emit("progress", {
     node: "getDeviceName",

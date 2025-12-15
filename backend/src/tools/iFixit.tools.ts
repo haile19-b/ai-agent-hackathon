@@ -92,7 +92,7 @@ export const guideListNode = async(state:any) => {
 
     return {
       guidesFound: true,
-      guides: json.guides.map(guide => ({
+      guides: json.guides.map((guide: any)  => ({
         id: guide.guideid,
         title: guide.title
       }))
@@ -135,10 +135,10 @@ export const guideDetailsNode = async(state:any) => {
     const json = response.data; // The parsed JSON data is in response.data
 
     // Clean up massive JSON
-    const cleanedSteps = json.steps.map(step => ({
+    const cleanedSteps = json.steps.map((step:any) => ({
       title: step.title,
-      text: step.lines.map(line => line.text_raw).join("\n"),
-      images: step.media.data.map(img => img.thumbnail)
+      text: step.lines.map((line:any) => line.text_raw).join("\n"),
+      images: step.media.data.map((img:any) => img.thumbnail)
     }));
 
     agentEvents.emit("progress", {
