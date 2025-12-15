@@ -12,7 +12,6 @@ export const summarize = async (state: any) => {
     timestamp: Date.now()
   });
 
-  console.log("here is the final Data -----> ", state)
 
   // The content structure should only contain user/model turns
   const content = [

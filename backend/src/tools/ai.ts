@@ -81,8 +81,6 @@ export const getRelevantGuide = async(state:any) => {
       timestamp: Date.now()
     });
 
-    console.log("state6: ",state);
-
     if (!state.guides || state.guides.length === 0) {
         console.error("State does not contain guides.");
         return { selectedGuideId: null, webSearch: true };
@@ -96,7 +94,6 @@ const promptContent = `
     List of available guides: ${JSON.stringify(state.guides, null, 2)}
 `;
 
-console.log("here is it",JSON.stringify(state.guides,null,2))
 
     const response = await genAI.models.generateContent({
         model: "gemini-2.5-flash",
@@ -110,7 +107,6 @@ console.log("here is it",JSON.stringify(state.guides,null,2))
     const  relevantGUide:guide = JSON.parse(response.text!)
 
     try {
-        console.log("Selected Guide:", relevantGUide);
 
     agentEvents.emit("progress", {
       node: "Getting Relevant Guide",

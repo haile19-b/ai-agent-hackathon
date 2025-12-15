@@ -2,7 +2,7 @@ import axios from "axios";
 import { agentEvents } from "../config/event.emmiter";
 
 // passed
-export const deviceSearchNode = async (state) => {
+export const deviceSearchNode = async (state:any) => {
 
   agentEvents.emit("progress", {
   node: "deviceSearch",
@@ -17,7 +17,6 @@ export const deviceSearchNode = async (state) => {
     }
 
     const query = encodeURIComponent(state.deviceName);
-    console.log("state2: ",state)
     const url = `https://www.ifixit.com/api/2.0/search/${query}?filter=device`;
 
     try {
@@ -27,13 +26,11 @@ export const deviceSearchNode = async (state) => {
 
         if (!json?.results?.length) {
             // Log for debugging if you want
-            console.log("No results found for query:", state.deviceName); 
             return { deviceFound: false };
         }
 
         const top = json.results[0];
 
-        console.log("state3: ",state)
 
         agentEvents.emit("progress", {
         node: "deviceSearch",
@@ -64,7 +61,7 @@ export const deviceSearchNode = async (state) => {
 
 
 //passed
-export const guideListNode = async(state) => {
+export const guideListNode = async(state:any) => {
 
   agentEvents.emit("progress", {
     node: "guideListSearch",
@@ -73,10 +70,8 @@ export const guideListNode = async(state) => {
     timestamp: Date.now()
   });
 
-  console.log("state4: ",state)
 
   const url = `https://www.ifixit.com/api/2.0/wikis/CATEGORY/${state.deviceTitle}`;
-  console.log(state)
 
   try {
     // Axios handles the request and the JSON parsing automatically.
@@ -84,11 +79,9 @@ export const guideListNode = async(state) => {
     const json = response.data; // The parsed JSON data is in response.data
 
     if (!json?.guides.length) {
-      console.log("No guides found for device:", state.deviceTitle);
       return { guidesFound: false };
     }
 
-    console.log("state5: ",state)
 
     agentEvents.emit("progress", {
       node: "guideListSearch",
@@ -122,7 +115,7 @@ export const guideListNode = async(state) => {
 
 
 //passed
-export const guideDetailsNode = async(state) => {
+export const guideDetailsNode = async(state:any) => {
 
   agentEvents.emit("progress", {
       node: "Getting steps to solve",
@@ -131,7 +124,6 @@ export const guideDetailsNode = async(state) => {
       timestamp: Date.now()
     });
 
-  console.log("state7: ",state)
 
   const guideIdToFind = state.selectedGuideId;
   
@@ -161,7 +153,7 @@ export const guideDetailsNode = async(state) => {
       finalResponse: json.title
     };
 
-  } catch (error) {
+  } catch (error:any) {
 
     agentEvents.emit("progress", {
       node: "Getting steps to solve",

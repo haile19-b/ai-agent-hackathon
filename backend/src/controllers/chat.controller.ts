@@ -184,14 +184,11 @@ export const getChats = async(req:Request,res:Response):Promise<Response> => {
 
   try {
 
-    console.log("Querying chats for userId:", userId); 
     
     const findChats = await prisma.chatSession.findMany({
       where:{userId},
       orderBy: { updatedAt: "desc" }
     })
-
-  console.log("findchat",findChats)
 
   return res.status(200).json({
     success:true,

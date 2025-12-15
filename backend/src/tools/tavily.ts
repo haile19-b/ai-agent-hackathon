@@ -18,7 +18,6 @@ export const fallbackSearchNode = async(state:any) => {
     results:res.results
   }
 
-  // console.log("this is the webResult---> ",content)
 
   return {
     // Slices the first 3 results from the response
