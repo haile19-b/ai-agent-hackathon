@@ -4,6 +4,7 @@ import dotev from 'dotenv'
 import authRoute from "./routes/auth.route";
 import chatRoute from "./routes/chat.route";
 import { checkPointer } from "./config/stateCheckPointer";
+import cookieParser from "cookie-parser";
 
 dotev.config();
 
@@ -21,7 +22,13 @@ startApp()
 const PORT = process.env.PORT || 5000
 const app:Express = express()
 
-app.use(cors())
+app.use(cors({
+    origin: 'http://localhost:3000', // Replace with your exact frontend URL
+    credentials: true
+}));
+
+app.use(cookieParser());
+
 app.use(express.json());
 
 app.get("/",(req:Request,res:Response)=>{

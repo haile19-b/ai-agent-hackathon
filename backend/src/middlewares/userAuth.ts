@@ -3,25 +3,22 @@ import jwt, { JsonWebTokenError } from "jsonwebtoken";
 
 // Extend Express Request interface to include userId
 declare global {
-  namespace Express {
-    interface Request {
-      userId?: string;
+    namespace Express {
+        interface Request {
+            userId?: string;
+        }
     }
-  }
 }
 
 export const userAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 
-    const authHeader = req.headers.authorization;
+    const token = req.cookies?.token;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        res.status(401).json({ success: false, message: 'Not Authorized. Missing or invalid Authorization header.' });
-        return; 
+    if (!token) {
+        res.status(401).json({ message: "Unauthorized" });
+        return
     }
 
-   
-    const token = authHeader.split(' ')[1];
-    
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
         throw new Error('JWT_SECRET is not defined in environment variables');
@@ -29,7 +26,9 @@ export const userAuth = async (req: Request, res: Response, next: NextFunction):
 
     try {
 
-        const decoded = jwt.verify(token!, jwtSecret);
+        const decoded = jwt.verify(token, jwtSecret) as {
+            id:string
+        };
 
         if (decoded.id) {
             req.userId = decoded.id;
@@ -41,7 +40,7 @@ export const userAuth = async (req: Request, res: Response, next: NextFunction):
         next();
 
     } catch (error) {
-        
+
         if (error instanceof JsonWebTokenError) {
             res.status(401).json({ success: false, message: 'Invalid or expired token.' });
         } else {

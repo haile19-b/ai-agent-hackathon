@@ -27,7 +27,12 @@ export const createChatSession = async (req: Request & { userId?: string },res: 
 
     return res.status(201).json({
       success: true,
-      sessionId: session.id
+      chat:{
+        sessionId:session.id,
+        title:session.title,
+        createdAt:session.createdAt,
+        updatedAt:session.updatedAt
+      }
     });
   } catch (error: any) {
     return res.status(500).json({
