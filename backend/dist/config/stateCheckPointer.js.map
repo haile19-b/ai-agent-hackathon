@@ -1,0 +1,1 @@
+{"version":3,"file":"stateCheckPointer.js","sourceRoot":"","sources":["../../src/config/stateCheckPointer.ts"],"names":[],"mappings":";;;AAAA,2BAA0B;AAC1B,4FAAyE;AAE5D,QAAA,IAAI,GAAG,IAAI,SAAI,CAAC;IAC3B,gBAAgB,EAAE,OAAO,CAAC,GAAG,CAAC,iBAAiB;CAChD,CAAC,CAAC;AAEH,OAAO,CAAC,GAAG,CAAC,6BAA6B,CAAC,CAAA;AAE7B,QAAA,YAAY,GAAG,IAAI,6CAAa,CAAC,YAAI,CAAC,CAAC"}
