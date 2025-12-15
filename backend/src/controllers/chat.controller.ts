@@ -1,10 +1,9 @@
-import { Request,Response } from "express"
+import { Request, Response } from "express"
 import prisma from "../config/prisma";
 import { agent } from "../agents/graph";
-import { fallbackSearchNode } from "../tools/tavily";
 import { agentEvents } from "../config/event.emmiter";
 
-export const createChatSession = async (req: Request & { userId?: string },res: Response): Promise<Response> => {
+export const createChatSession = async (req: Request & { userId?: string }, res: Response): Promise<Response> => {
 
   const userId = req.userId;
 
@@ -27,11 +26,11 @@ export const createChatSession = async (req: Request & { userId?: string },res: 
 
     return res.status(201).json({
       success: true,
-      chat:{
-        sessionId:session.id,
-        title:session.title,
-        createdAt:session.createdAt,
-        updatedAt:session.updatedAt
+      chat: {
+        sessionId: session.id,
+        title: session.title,
+        createdAt: session.createdAt,
+        updatedAt: session.updatedAt
       }
     });
   } catch (error: any) {
@@ -120,6 +119,13 @@ export const chat = async (req: Request, res: Response): Promise<void | Response
       data: { updatedAt: new Date() }
     });
 
+    agentEvents.emit("progress", {
+      node: "Summarizing response",
+      status: "completed",
+      message: `Response completed`,
+      timestamp: Date.now()
+    });
+
     res.write(
       `data: ${JSON.stringify({
         status: "complete",
@@ -172,44 +178,35 @@ export const getMessages = async (req: Request, res: Response): Promise<Response
 };
 
 
-export const getChats = async(req:Request,res:Response):Promise<Response> => {
+export const getChats = async (req: Request, res: Response): Promise<Response> => {
   const userId = req.userId
 
-  if(!userId){
+  if (!userId) {
     return res.status(401).json({
-      success:false,
-      message:"NO userId"
+      success: false,
+      message: "NO userId"
     })
   }
 
   try {
 
-    
+
     const findChats = await prisma.chatSession.findMany({
-      where:{userId},
+      where: { userId },
       orderBy: { updatedAt: "desc" }
     })
 
-  return res.status(200).json({
-    success:true,
-    chats:findChats
-  })
+    return res.status(200).json({
+      success: true,
+      chats: findChats
+    })
 
   } catch (error) {
     return res.status(500).json({
-      success:false,
-      message:"Error occured Finding the chats!",
-      error:error
+      success: false,
+      message: "Error occured Finding the chats!",
+      error: error
     })
   }
 
-}
-
-export const google = async(req:Request,res:Response):Promise<Response> => {
-    const {questions} = req.body;
-    const result =  await fallbackSearchNode(questions)
-
-    return res.status(200).json({
-        result
-    })
 }

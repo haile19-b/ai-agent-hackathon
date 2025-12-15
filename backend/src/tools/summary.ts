@@ -46,9 +46,7 @@ export const summarize = async (state: any) => {
   let finalSummary: steps;
 
   try {
-
-    finalSummary = JSON.parse(buffer.text!);
-
+    finalSummary = JSON.parse(buffer.text!)
   } catch (err) {
 
     agentEvents.emit("progress", {
@@ -103,9 +101,7 @@ export const summarizeWebsearchData = async (state: any) => {
   let finalSummary: steps;
 
   try {
-
     finalSummary = JSON.parse(buffer.text!);
-
   } catch (err) {
 
     agentEvents.emit("progress", {
